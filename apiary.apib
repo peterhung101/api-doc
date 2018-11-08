@@ -1,7 +1,7 @@
 FORMAT: 1A
 HOST: http://polls.apiblueprint.org/
 
-# api-doc
+# sample
 
 Polls is a simple API allowing consumers to view polls and vote in them.
 
@@ -78,3 +78,36 @@ form of choices.
                     }
                 ]
             }
+            
+## Users Collection [/users]
+
+### List Users [GET]
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array)
+            + (user)
+            + (user)
+                + id: 33 (number)
+                + name: Katie
+            
+## Users Collection 22 [/users2]
+
+### List Users2 [GET]
+
++ Response 200 (application/json)
+    + Attributes
+        + data (array[user], fixed-type)
+
+
+# Data Structures
+
+## user
+- id: 23 (number) - user id
+- name: test (string) - user name
+- department (department) - Specific sale only price
+- friends (array[user], fixed-type)
+
+## department
+- id: 123 (number)
+- department_name: IT (string)
