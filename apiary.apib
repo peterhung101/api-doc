@@ -85,12 +85,18 @@ form of choices.
 
 + Response 200 (application/json)
     + Attributes
-        + data (array)
+        + data (array, fixed-type)
             + (user)
             + (user)
                 + id: 33 (number)
                 + name: Katie
-            
+            + (user)
+                + moreDepartments (array, fixed-type)
+                    + (department)
+                        + id: 321 (number)
+                        + department_name: Marketing
+                    + (department)
+
 ## Users Collection 22 [/users2]
 
 ### List Users2 [GET]
@@ -103,11 +109,13 @@ form of choices.
 # Data Structures
 
 ## user
+<!-- user object -->
 - id: 23 (number) - user id
 - name: test (string) - user name
 - department (department) - Specific sale only price
-- friends (array[user], fixed-type)
-
+- moreDepartments (array[department], fixed-type)
+        
 ## department
+<!-- department object -->
 - id: 123 (number)
 - department_name: IT (string)
