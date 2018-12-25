@@ -1,6 +1,1479 @@
 FORMAT: 1A
-HOST: http://polls.apiblueprint.org/
+HOST: http://www.diyeetech.com
 
-# Api Doc
+# DY2 Api系统文档
+ 
+# Group  CatalogController
 
-System never sleeps.
+## 获取产品目录 [GET /catalogs{?categoryId,styleId,shopId,tagId,sort,offset,limit,search}]
++ Parameters
+    + categoryId : 1 (number)
+    + styleId : 1 (number)
+    + shopId : 123 (number)
+    + tagId : 1 (number)
+    + sort : id/default/new/sales/recentSales + _asc/desc (string)
+    + offset : 5 (number,required)
+    + limit : 10 (number,required)
+    + search : seachstr (string)
++ Response 200 (application/json)
+    + Attributes
+        + result (array[catalog],fixed-type)
+        + paging (paging,fixed-type)
+
+## 获取风格页产品目录 [GET /catalog/style-page{?sort,limit}]
++ Parameters
+    + sort : designItemId/default/new/sales/recentSales + _asc/desc (string)
+    + limit : 10 (number,required)
++ Response 200 (application/json)
+    + Attributes
+        + result (array[stylePage], fixed-type)
+        + paging (paging, fixed-type) 
+ 
+# Group DesignController
+
+## 管理员获取设计列表 [GET /admin/designs{?search,designStatusId,sort,offset,limit}] 
++ Parameters 
+    + search :1 (number) -如果全是数字,则查找DesignId,否则查找title 
+    + designStatusId: shop (string)    
+    + sort: id/title/shopName/designStatusName/soldQuantity/publishTime_asc/desc (string) 
+    + offset : 0 (number) 
+    + limit : 10 (number) 
+
++ Response 200 (application/json)
+    + Attributes 
+        + result (array,fixed-type) 
+            + (design) 
+                + designDetail :  (nullable) -不加载 
+                + category :  (nullable) -不加载 
+                + designType :  (nullable) -不加载 
+        + paging (paging,fixed-type) 
+
++ Response 401
+    UserAccountException("缺乏管理员权限")  
+
+## 管理员修改设计 [PUT /admin/design/{id}]
++ Parameters
+    + id:1(number) -设计ID
++ Request  (application/json) 
+    + Attributes 
+        + title:什么什么设计 (string) 设计品名字 
+        + designRank : 123 (number) -店铺id 
+        + designStatusId : 1 (number) 
+        + designStyles (array[designStyle],fixed-type) 
+        + designTags (array[designTag],fixed-type)
+
++ Response 200 (application/json)
+    + Attributes (design,fixed-type) 
+        + category:  (nullable) -不加载 
+        + designImage:  (nullable) -不加载 
+        + designType:  (nullable) -不加载 
+        + designDetail:  (nullable) -不加载 
+
++ Response 401
+    UserAccountException("缺乏管理员权限") 
+
+## 新增设计 [POST /designs]
++ Request  (application/json)
+    + Attributes
+        + title:什么什么设计 (string) 设计品名字
+        + shopId : 123 (number) -店铺id
+        + categoryFilterId : 4 (number) -选择的产品是布料
+        + designImage 
+            + designSourceImage: 4jhjh5k3h45hjy.jpg -图片路径
+            + width: 6000 (string) -图片宽度
+            + height: 8000 (string) -图片高度
+            + fileSize: 1351 (string) -图片大小
+            + imageStorageId: 1 (number) -图片所在的第三方图库
+            + dpi:300 (number) -图片的dpi
+
++ Response 200 (application/json)
+    + Attributes (design,fixed-type) 
+
++ Response 401
+    UserAccountException("缺乏店主权限") 
+
+## 获取设计列表 [GET /designs{?search,designStatusId,sort,offset,limit}] 
++ Parameters 
+    + search :1 (number) -如果全是数字,则查找DesignId,否则查找title 
+    + designStatusId: shop (string)    
+    + sort: id/title/shopName/designStatusName/soldQuantity/publishTime_asc/desc (string) 
+    + offset : 0 (number) 
+    + limit : 10 (number) 
+
++ Response 200 (application/json)
+    + Attributes 
+        + result (array,fixed-type) 
+            + (design) 
+                + designDetail :  (nullable) -不加载 
+                + category :  (nullable) -不加载 
+                + designType :  (nullable) -不加载 
+        + paging (paging,fixed-type) 
+
++ Response 401
+    UserAccountException("缺乏店主权限")  
+
+## 修改设计 [PUT /design/{id}]
++ Parameters
+    + id:1(number) -设计ID
++ Request  (application/json) 
+    + Attributes 
+        + title:什么什么设计 (string) 设计品名字 
+        + shopId : 123 (number) -店铺id 
+        + categoryFilterId : 4 (number) -选择的产品是布料 
+        + designStatusId : 1 (number) 
+        + designImage 
+            + designSourceImage: 4jhjh5k3h45hjy.jpg -图片路径 
+            + width: 6000 (string) -图片宽度 
+            + height: 8000 (string) -图片高度 
+            + fileSize: 1351 (string) -图片大小 
+            + imageStorageId: 1 (number) -图片所在的第三方图库 
+            + dpi:300 (number) -图片的dpi 
+        + designStyles (array[designStyle],fixed-type) 
+        + designTags (array[designTag],fixed-type)
+        + designDetail (designDetail,fixed-type)
+
++ Response 200 (application/json)
+    + Attributes (design,fixed-type) 
+
++ Response 401
+    UserAccountException("缺乏店主权限") 
+
+## 取得供应商 [GET /designs/file-upload]
++ Response 200 (application/json)
+    + Attributes 
+        + uploadToken: redtgkhdfgkfdjg454t5T (string)
+
++ Response 401
+    UserAccountException("缺乏用户权限") 
+
+
+## 设计详情 [GET /design/{id}{?embed}]
++ Parameters
+    + id :1 (number) -设计ID
+    + embed: shop (string) -embed是shop就查询shop相关的资料
++ Response 200 (application/json)
+    + Attributes (design,fixed-type) 
+
++ Response 401
+    UserAccountException("缺乏店主权限") 
+
+
+## 设计状态列表 [GET /design-statuses] 
++ Response 200 (application/json)
+    + Attributes 
+        + result (array[designStatus],fixed-type) 
+
++ Response 401
+    UserAccountException("缺乏店主权限")  
+ 
+# Group DesignItemController
+
+## 新增设计品 [POST /design-items]
++ Request  (application/json)
+    + Attributes
+        + designId:123 (number) -设计iD
+        + productId : 123 (number) -产品id
+        + productColorId : 4 (number) -产品颜色id
+        + activated: true (boolean) -是否激活 
+        + price: 10 (number) -价格
+        + currencyId: 123 (number) -价格货币id
+        + printTypeId: 1 (number) -印刷正面或者反面 
+        + printCustomizations
+            + printTypeId: 4jhjh5k3h45hjy.jpg -图片路径
+            + imagePositionX: 6000 (string) -图片宽度
+            + imagePositionY: 8000 (string) -图片高度
+            + imageScaleX: 1351 (string) -图片大小
+            + imageScaleY: 1 (number) -图片所在的第三方图库
+            + dpi:300 (number) -图片的dpi
+
++ Response 200 (application/json)
+    + Attributes (designItem,fixed-type) 
+
++ Response 401
+    UserAccountException("缺乏用户权限") 
+
+## 获取一条设计品 [GET /design-items/{id}{?embed}]
++ Parameters
+    + id:1(number) -设计品ID 
+    + embed: printCustomization (string) -embed是printCustomization就查询print_customization相关的资料
++ Response 200 (application/json) 
+    + Attributes 
+        + result (designItem,fixed-type)
+
++ Response 401 
+    UserAccountException("缺乏店主权限")  
+
+## 获取设计品 [GET /design-items{?designId,embed}]
++ Parameters
+    + designId:1(number) -设计ID 有就查询单条记录，否则返回design全部的designItem
+    + embed: printCustomization (string) -embed是printCustomization就查询print_customization相关的资料
++ Response 200 (application/json) 
+    + Attributes 
+        + result (array[designItem],fixed-type)
+
++ Response 401
+    UserAccountException("缺乏店主权限")  
+
+## 修改设计品 [PUT /design-items/{id}]
++ Parameters
+    + id :1 (number) -设计ID
++ Request  (application/json)
+    + Attributes
+        + designId:123 (number) -设计iD
+        + productId : 123 (number) -产品id
+        + productColorId : 4 (number) -产品颜色id
+        + activated: true (boolean) -是否激活 
+        + price: 10 (number) -价格
+        + currencyId: 123 (number) -价格货币id
+        + printTypeId: 1 (number) -印刷正面或者反面
+    
++ Response 200 (application/json)
+    + Attributes (designItem,fixed-type) 
+
++ Response 401
+    UserAccountException("缺乏店主权限") 
+ 
+
+# Group  FavoritesController
+
+## 获取收藏产品列表 [GET /favorites{?designItemId,categoryId,styleId,shopId,tagId,sort,offset,limit}]
++ Parameters
+    + designItemId : 123 (number)
+    + categoryId : 1 (number)
+    + styleId : 1 (number)
+    + shopId : 123 (number)
+    + tagId : 1 (number)
+    + sort : id/default/new/sales/recentSales + _asc/desc (string)
+    + offset : 5 (number,required)
+    + limit : 10 (number,required)
++ Response 200 (application/json)
+    + Attributes
+        + result (array[catalog],fixed-type)
+        + paging (paging,fixed-type)
++ Response 401 
+        UserAccountException("缺乏用户权限")
+
+## 新增收藏产品 [POST /favorites]
++ Request  (application/json)
+    + Attributes 
+        + designItemId (number,required) 
++ Response 200 (application/json) 
+    + Attributes (favorite,fixed-type)
++ Response 401 
+        UserAccountException("缺乏用户权限")
+
+## 删除收藏产品 [DELETE /favorites/{designItemId}]
++ Parameters
+    + designItemId : 123 (number,required)
++ Response 200 (application/json)
+    + Attributes 
+        + result : ok (string) - 删除成功 
++ Response 400   
+        ParameterException("没有相关记录")
++ Response 401   
+        UserAccountException("缺乏用户权限")
+ 
+
+# Group  FollowingController
+
+## 获取关注店铺列表 [GET /followings{?shopId,offset,limit}]
++ Parameters
+    + shopId : 13 (number) 
+    + offset : 5 (number)
+    + limit : 10 (number) 
++ Response 200 (application/json) 
+    + Attributes
+        + result (array[following],fixed-type)
+        + paging (paging,fixed-type)
++ Response 401 
+        UserAccountException("User not authenticated.") - 401, 用户没有登入
+
+## 新增关注店铺 [POST /followings]
++ Request
+    + Attributes
+        + shopId : 13 (number)
++ Response 200 (application/json)
+    + Attributes (following, fixed-type)
+        + followingStatus (nullable)
+        + shop (nullable)
++ Response 401 
+        UserAccountException("缺乏用户权限")
+
+## 取消关注店铺 [PUT /followings/{id}]
++ Request
+    + Attributes
+        + followingStatusId : 1 (number)
++ Response 200 (application/json)
+    + Attributes (following, fixed-type)
+        + followingStatus (nullable)
+        + shop (nullable)
++ Response 401 
+        UserAccountException("缺乏用户权限")
+
+## 获得关注店铺的推送 [GET /followings/catalog]
++ Parameters
+    + categoryId : 1 (number)
+    + styleId : 1 (number)
+    + tagId : 1 (number)
+    + sort : new_desc (string)
+    + offset : 5 (number)
+    + limit : 10 (number)
++ Response 200 (application/json)
+    + Attributes
+        + result (array[catalog],fixed-type)
+        + paging (paging,fixed-type)
++ Response 401 
+        UserAccountException("缺乏用户权限")
+ 
+
+# Group  GenderController
+
+## 性别选项列表 [GET /genders]
++ Response 200 (application/json) 
+    + Attributes
+        + result (array[genders],fixed-type)
+ 
+# Group PrintCustomizationsController
+
+## 新增设计定制 [POST /print-customizations]
++ Request  (application/json)
+    + Attributes
+        + designItemId:123 (number) -设计品iD
+        + printTypeId : 123 (number) -印刷正面或者反面
+        + imagePositionX : 4 (string) -x点位置
+        + imagePositionY: 2 (string) -y点位置
+        + imageScaleX: 10 (string) -X缩放比例
+        + imageScaleY: 123 (string) -Y缩放比例
+        + imageRepeatTypeId: 1 (number) -垂直交错
+        + designImageId: 1 (number) -设计图片id
+        + productId: 1 (number) -产品id
+
++ Response 200 (application/json)
+    + Attributes (printCustomization,fixed-type) 
+
++ Response 401
+    UserAccountException("缺乏店主权限") 
+
+## 设计定制详情 [GET /print-customizations/{id}]
++ Parameters
+    + id:1(number) -设计定制ID 
++ Response 200 (application/json)
+    + Attributes (printCustomization,fixed-type) 
+        
++ Response 401
+    UserAccountException("缺乏店主权限")  
+
+## 修改设计定制 [PUT /print-customizations/{id}]
++ Request  (application/json)
+    + Attributes
+        + designItemId:123 (number) -设计品iD
+        + printTypeId : 123 (number) -印刷正面或者反面
+        + imagePositionX : 4 (string) -x点位置
+        + imagePositionY: 2 (string) -y点位置
+        + imageScaleX: 10 (string) -X缩放比例
+        + imageScaleY: 123 (string) -Y缩放比例
+        + imageRepeatTypeId: 1 (number) -垂直交错
+        + designImageId: 1 (number) -设计图片id
+        + productId: 1 (number) -产品id
+    
++ Response 200 (application/json)
+    + Attributes (printCustomization,fixed-type) 
+
++ Response 401
+    UserAccountException("缺乏店主权限") 
+ 
+# Group ShopcartController
+
+## 获取购物车列表 [GET /shopcarts/{id}{?embed=items}]
++ Parameters
+    + id : 1 (number)
+    + skuId : 1 (number)
+    + description : testing123 (string)
+    + quantity : 1 (number)
+    + embed : items (string)
++ Response 200 (application/json)
+    + Attribute (shopcart, fixed-type)
+        + shopcartItems : (array[shopcartItem])
+            + designItem : (designItem)
+                + product (nullable)
+                + productColor (nullable)
+                + currency (nullable)
+                + printType (nullable)
+                + printCustomization (nullable)
+                + design : (design)
+                    + designStatus (nullable)
+                    + category (nullable)
+                    + designImage (nullable)
+                    + designType (nullable)
+                    + updateUserData (nullable)
+                    + designDetail (nullable)
+                    + shop : (shop)
+                        + currency (nullable)
+                        + shopStatus (nullable)
+                        + userData (nullable)
+                        + shopType (nullable)
+                        + shopDetail (nullable)
+                        + catalog (nullable)
+            + sku :　(sku)
+                + product : (product)
+                    + productStatus (nullable)
+                    + createUserData (nullable)
+                    + updateUserData (nullable)
+                    + brand (nullable)
+                    + defaultprintType (nullable)
+                    + defaultproductColor (nullable)
++ Response 400
+    ParameterException("没有相关记录")
++ Response 403
+    UserAuthorizationException("用户没权获取相关数据")
+                    
+ 
+# Group ShopcartItemController
+
+## 加入购物车商品项 [POST /shopcart-items]
++ Request
+    + Attributes
+        + shopcartId : 123 (number)
+        + skuId : 123 (number)
+        + designItemId : 123 (number)
+        + description : 化纤布料印花定制 (string)
+        + quantity : 1 (number)
++ Response 200 (application/json)
+    + Attribute (shopcartItem, fixed-type)
+        + designItem : (designItem)
+            + product (nullable)
+            + productColor (nullable)
+            + currency (nullable)
+            + printType (nullable)
+            + printCustomization (nullable)
+            + design : (design)
+                + designStatus (nullable)
+                + category (nullable)
+                + designImage (nullable)
+                + designType (nullable)
+                + createUserData (nullable)
+                + updateUserData (nullable)
+                + designDetail (nullable)
+                + shop (nullable)
+        + sku :　(sku)
+            + product : (product)
+                + productStatus (nullable)
+                + createUserData (nullable)
+                + updateUserData (nullable)
+                + brand (nullable)
+                + defaultprintType (nullable)
+                + defaultproductColor (nullable)
+
+## 修改购物车商品项 [PUT /shopcart-items/{id}]
++ Request
+    + Attributes
+        + id : 12345 (number)
+        + quantity : 1 (number)
+        + selected : true (boolean)
++ Response 200 (application/json)
+    + Attribute (shopcartItem, fixed-type)
+        + designItem : (designItem)
+            + product (nullable)
+            + productColor (nullable)
+            + currency (nullable)
+            + printType (nullable)
+            + printCustomization (nullable)
+            + design : (design)
+                + designStatus (nullable)
+                + category (nullable)
+                + designImage (nullable)
+                + designType (nullable)
+                + createUserData (nullable)
+                + updateUserData (nullable)
+                + designDetail (nullable)
+                + shop (nullable)
+        + sku :　(sku)
+            + product : (product)
+                + productStatus (nullable)
+                + createUserData (nullable)
+                + updateUserData (nullable)
+                + brand (nullable)
+                + defaultprintType (nullable)
+                + defaultproductColor (nullable)
+ 
+# Group  ShopController
+
+
+## 用户店面列表 [GET /admin/shops{?embed,userId,offset,limit}]
++ Parameters
+    + embed : stat (string) - 是否统计店铺30天内销售数量
+    + userId ： 2132 (string) - 指定查询
+    + offset : 0 (number,required) - 分页 offset
+    + limit : 10 (number,required) - 分页 limit
+
++ Response 200 (application/json)
+    + Attributes
+        + result (array[shop],fixed-type)
+        + paging (paging,fixed-type)
+
++ Response 401
+    UserAccountException("缺乏管理员权限") 
+
+## 开店 [POST /shops]
++ Request  (application/json)
+    + Attributes
+        + shopName : 试试店 (string) -店名
+        + shopUrlPath : shishishop (string) -店名链接
+        + currencyId : 1 (number) -currencyId
+        + description : 试试店 (string) -备注
+
++ Response 200 (application/json)
+    + Attributes (shop,fixed-type)
++ Response 400
+    ParameterException("店名已被使用") 
+    ParameterException("店名长度必须为2位以上")  
+    ParameterException("店名只能包含文字，数字及横杠") 
+    ParameterException("店铺网址已被使用") 
+    ParameterException("店铺网址长度必须为2位以上") 
+    ParameterException("店名只能包含文字，数字及横杠")  
+
++ Response 401
+    UserAccountException("缺乏用户权限")  
+
+## 更新店面设定 [PUT /shops/{id}]
++ Parameters
+    + id : 1 (number) -店铺ID
++ Request  (application/json)
+    + Attributes
+        + currencyId : 1 (number) -currencyId
+        + description : 试试店 (string) -备注
+
++ Response 200 (application/json)
+    + Attributes (shop,fixed-type)
+
++ Response 401
+    UserAccountException("缺乏店主权限") 
+    AuthorizationException("用户没有权限更改此店铺")
+
++ Response 404
+    ResourceNotFoundException("找不到店面记录")  
+
+## 取得店面属性 [GET /shops/{id}{?embed}]
++ Parameters
+    + id : 1 (number) -店铺ID
+    + embed : catalog (string) - catalog 查询4店铺属性跟前4条catalog,同时允许无权限获取数据
+
++ Response 200 (application/json)
+    + Attributes (shop,fixed-type)
+    
++ Response 404
+    ResourceNotFoundException("找不到店面记录")  
+
+## 查询店户名重复 [GET /shops/name-check{?shopName}]
++ Parameters
+    + shopName : 啊啊 (string,required) -店铺名字
+
++ Response 200 (application/json)
+    + Attributes
+        + exist : false (boolean) -店名重复为 true ，否则为 false
+
++ Response 401
+    UserAccountException("缺乏用户权限")  
+
+## 用URL取得店面属性 [GET /shops/url{?path,embed}]
++ Parameters
+    + path : dsfdfs (string) -店铺链接
+    + embed : catalog (string) - catalog 查询4店铺属性跟前4条catalog,同时允许无权限获取数据
+
++ Response 200 (application/json)
+    + Attributes (shop,fixed-type)
+
++ Response 404
+    ResourceNotFoundException("找不到店面记录") 
+
+## 查询店URL重复 [GET /shops/url-check{?shopUrlPath}]
++ Parameters
+    + shopUrlPath : dsfdfs (string) -店铺链接
++ Response 200 (application/json)
+    + Attributes
+        + exist : false (boolean) -店名重复为 true ，否则为 false
+
++ Response 401
+    UserAccountException("缺乏用户权限")  
+
+ 
+# Group StylesController
+
+
+## 取得设计资料 [GET /styles]
++ Response 200 (application/json)
+    + Attributes 
+        + result (array,fixed-type)
+            + (stylePage) 
+                + catalogs :  (nullable) -不加载 
++ Response 401 
+    UserAccountException("缺乏店长权限") 
+ 
+# Group  TransactionController
+
+## 获取交易列表 [GET /transactions{?transactionId,referenceId,transactionTypeId,sort,offset,limit}]
++ Parameters
+    + transactionId : 123 (number)
+    + referenceId : 123 (number)
+    + transactionTypeId : 1 (number)
+    + sort : id/transactionTypeName/transactionAmount/paymentTypeName/createTime/salesOrderId_asc/desc
+    + offset : 5 (number,required)
+    + limit : 10 (number,required)
++ Response 200 (application/json)
+    + Attributes
+        + result (array[transaction],fixed-type)
+        + paging (paging,fixed-type)
+
+## 获取交易详情 [GET /transactions/{id}]
++ Parameters
+    + id : 123 (number) -交易记录id
++ Response 200 (application/json)
+    + Attributes (transaction,fixed-type)
++ Response 400
+    ParameterException("没有交易记录")
+
+## 获取交易类型列表 [GET /transaction-types]
++ Response 200 (application/json)
+    + Attributes
+        + result (array[transactionType],fixed-type)
+
+## 获取支付类型列表 [GET /payment-types]
++ Response 200 (application/json)
+    + Attributes
+        + result (array[paymentType],fixed-type)
+
+## 获取用户交易列表 [GET /admin/transactions{?userId,paymentTypeId,transactionId,referenceId,transactionTypeId,sort,offset,limit}]
++ Parameters
+    + userId : 123 (number)
+    + paymentTypeId : 123 (number)
+    + transactionId : 123 (number)
+    + referenceId : 123 (number)
+    + transactionTypeId : 1 (number)
+    + sort : id/transactionTypeName/transactionAmount/paymentTypeName/createTime/salesOrderId_asc/desc
+    + offset : 5 (number,required)
+    + limit : 10 (number,required)
++ Response 200 (application/json)
+    + Attributes
+        + result (array[transaction],fixed-type)
+        + paging (paging,fixed-type)
++ Response 401
+    UserAccountException("缺乏管理员权限") 
+
+## 获取用户交易详情 [GET /admin/transactions/{id}]
++ Parameters
+    + id : 123 (number) -交易记录id
++ Response 200 (application/json)
+    + Attributes (transaction,fixed-type)
++ Response 400
+    ParameterException("没有订单记录")
++ Response 401
+    UserAccountException("缺乏管理员权限")
+
+ 
+# Group  UserController
+
+## 用户列表 [GET /admin/users{?id,username,userStatusId,userRoleId,sort,offset,limit}]
+
++ Parameters
+    + id : 5151 (number) - 用户id
+    + username ： 2132 (string) - 用户名字
+    + userStatusId : 1 (number) - 用户状态列表
+    + userRoleId : 1 (number) - 用户权限Id
+    + sort : id/username/userStatusName/userRoleName/departmentName/createTime_asc/desc (string) - 排序
+    + offset : 0 (number) - 分页 offset
+    + limit : 10 (number) - 分页 limit
++ Response 200 (application/json)
+    + Attributes
+        + result (array[user],fixed-type)
+        + paging (paging,fixed-type)
++ Response 401 
+    UserAccountException("缺乏管理员权限") 
+
+## 获取用户资料 [GET /admin/users/{id}]
++ Parameters
+    + id : 1556 (number) -用户id
++ Response 200 (application/json)
+    + Attributes (user,fixed-type)
++ Response 401 
+    UserAccountException("缺乏管理员权限")  
+
+## 更新用户权限 [PUT /admin/users/{id}]
++ Parameters
+    + id : 1556 (number) -用户id
++ Request  (application/json)
+    + Attributes
+        + userStatusId : 1 (number) - 用户状态
+        + userRoleId ： 1 (number) - 用户权限
+        + departmentId ： 1 (number) -用户部门
++ Response 200 (application/json)
+    + Attributes (user,fixed-type)
+        
++ Response 401 
+    UserAccountException("缺乏管理员权限") 
+
+## 用户注册 [POST /users]
++ Request  (application/json)
+    + Attributes
+        + username: peter (string,required) -手机号码 ,必填
+        + mobile:13172008872 (string,required) -手机号码 ,必填
+        + smsVerificationCode:12321 (string,required) -手机号码 ,必填
+        + password:dy201817 (string,required) -手机号码 ,必填
++ Response 200 (application/json)
+    + Attribute
+        + token: fesrglkthtgrtgktlttthy (string) -用户令牌
+
++ Response 400
+    ParameterException("用户名长度不得少于2字及不能以数字开头") 
+    ParameterException("用户名已被使用")   
+    ParameterException("手机号码无效")  
+    ParameterException("手机号码已被使用")  
+    ParameterException("短信认证码错误或过期") （10分钟）
+    ParameterException("密码长度必须为6位以上及同时包含数字和非数字字符") 
+
+## 验证发来的手机号跟验证是否正确 [POST /users/check-verification-code]
++ Request  (application/json)
+    + Attributes
+        + mobile : 13135 (string,required) -手机号码
+        + smsVerificationCode : 13135 (string,required) -手机验证码号码
++ Response 200 (application/json)
+    + Attributes
+        + verified : true (boolean) 验证成功
++ Response 400
+    ParametersException("手机号码无效"); 
+    ParametersException("手机号已经存在！"); 
+    ParametersException("验证码错误或者过期！"); 
+
+## 更新帐号默认发货地址 [PUT /users/default-shipping-address]
++ Request  (application/json)
+    + Attributes
+        + defaultShippingAddressId : 1515 (number) - 默认发货地址
++ Response 200 (application/json)
+    + Attributes
+        + result : ok (string) - ok 设置成功
++ Response 401 
+    UserAccountException("缺乏用户权限") 
+
+## 忘记密码-提交验证码 [POST /users/forgot-password]
++ Request  (application/json)
+    + Attributes
+        + username : sdfds (string,required) - 用户名
+        + mobile ： 12313 (string,required) - 手机号码
+        + smsVerificationCode ： 1531535 (string,required) - 手机验证码
++ Response 200 (application/json)
+    + Attributes
+        + token: fesrglkthtgrtgktlttthy (string) -用户令牌
++ Response 400
+    ParameterException("用户名/电话/电邮/密码不对") 
+    ParameterException("短信认证码错误或过期") （10分钟）
+
+
+
+## 请求短信认证码 [POST /users/forgot-password-sms-verification]
++ Request  (application/json)
+    + Attributes
+        + mobile : 123456516 (string,required) - 用户手机号
++ Response 200 (application/json)
+    + Attribute
+        + sent : false (boolean)  - true 短信已经成功发送
++ Response 400
+    ParameterException("没有手机号码记录")  
+    ParameterException("手机号码无效") 
++ Response 401
+    UserAccountException("帐户已被暂停")  
+    UserAccountException("帐户已被删除") 
++ Response 500
+    SMSException("无法发出短信")  
+
+## 用户登陆 [POST /users/login]
++ Request  (application/json)
+  + Attributes
+    + login (string,required) -用户名或者手机号 ,必填
+    + password (string,required) 密码 ,必填
++ Response 200 (application/json)
+    + Attributes
+        + token:fesrglkthtgrtgktlttthy (string,required) -用户名或者手机号 ,必填
++ Response 400
+    ParameterException("用户名/电话/电邮/密码不对") 
++ Response 401
+    UserAccountException("帐户已被暂停")   
+    UserAccountException("帐户已被删除") 
+
+## 更新手机号 [PUT /users/mobile]
++ Request  (application/json)
+    + Attributes
+        + mobile : peter (string,required)  - 用户手机号
+        + smsVerificationCode : 13172008872 (string,required)  - 用户验证码
++ Response 200 (application/json)
+    + Attributes
+        + result : ok (string) - 修改成功
++ Response 400
+    ParameterException(“手机号码无效”)  
+    ParameterException(“手机号码已被使用”)  
+    ParameterException(“短信认证码错误或过期”) (十分钟)
++ Response 401 
+    UserAccountException("缺乏用户权限")  
+
+
+## 查询用户名重复 [GET /users/name-check{?username}]
++ Parameters
+    + username  (string,required)  -用户名
+
++ Response 200 (application/json)
+    + Attribute
+        + exist : false (boolean)  - true 用户经常存在，flase 用户不存在
+
+## 更新密码 [PUT /users/password]
++ Request  (application/json)
+    + Attributes
+        + oldPassword : 123456 (string,required) -旧密码
+        + newPassword : 654321 (string,required) -新密码
++ Response 200 (application/json)
+    + Attributes
+        + result : ok (string) - 修改成功
++ Response 400
+    ParameterException(“现有密码错误”)  
+    ParameterException(“密码长度必须为6位以上及同时包含数字和非数字字符”)  
++ Response 401 
+    UserAccountException("缺乏用户权限")  
+
+
+## 更新基本资料 [PUT /users/profile]
++ Request  (application/json)
+    + Attributes
+        + surname: peter (string,required)  -用户 姓
+        + givenName: 13172008872 (string,required)  - 用户 名
+        + email: 12321 (string,required)  - 用户电子邮箱
+        + genderId: dy201817 (string,required)  - 用户性别
+        + birthday: 1988-08-08 (string,required) - 出生日期
+        
++ Response 201 (application/json)
+    + Attributes
+        + result : ok  (string) - 修改成功
++ Response 400
+    ParameterException("电邮地址格式错误") 
++ Response 401 
+    UserAccountException("缺乏用户权限")
+
+
+## 获取帐户部门及角色 [GET /users/profile{?embed}]
++ Parameters
+    + embed : addresses (string) - addresses 查出用户的全部地址，detail 查出用户的详细地址
++ Response 200 (application/json)
+    + Attributes (user,fixed-type)
++ Response 401 
+    UserAccountException("缺乏用户权限")
+
+
+## 用户角色列表 [GET /user-roles]
++ Response 200 (application/json)
+    + Attributes
+        + result (array[userStatus],fixed-type)
++ Response 401 
+    UserAccountException("缺乏管理员权限") 
+
+## 忘记密码-重设密码 [PUT /users/reset-password]
++ Request (application/json)
+    + Attributes
+        + password : 5151 (string,required) - 用户密码
+        + smsVerificationCode ： 2132 (string,required) - 手机验证码
++ Response 200 (application/json)
+    + Attributes
+        + result : ok (string) - 发送成功
++ Response 400
+    ParameterException(“密码长度必须为6位以上及同时包含数字和非数字字符”)  
+    ParameterException("短信认证码错误或过期")  （30分钟）
++ Response 401 
+    UserAccountException("缺乏用户权限") 
+
+## 请求短信认证码 [POST /users/sms-verification]
++ Request  (application/json)
+    + Attributes
+        + mobile (string,required) -手机号码 ,必填
++ Response 200 (application/json)
+    + Attribute
+        + sent : false (boolean)  - true 短信已经成功发送
++ Response 400
+    ParameterException("手机号码已被使用")  
+    ParameterException("手机号码无效")  
++ Response 500
+    SMSException("无法发出短信")  
+
+
+## 用户状态列表 [GET /user-statuses]
++ Response 200 (application/json)
+    + Attributes
+        + result (array[userStatus],fixed-type)
++ Response 401 
+    UserAccountException("缺乏管理员权限") 
+ 
+# Group  UserDesignImageController
+
+## 获取用户设计图列表 [GET /user-design-images]
++ Request  (application/json)
+    + Attributes
+        + title : test (string)  - 设计名称，可填可不填。
++ Response 200 (application/json)
+    + Attributes
+        + result (array[userDesignImage],fixed-type)
+
++ Response 401 
+    UserAccountException("缺乏用户权限") 
+
+## 获取用户设计图列表 [GET /user-design-images/{id}]
++ Parameters
+    + id:1(number,required) -设计ID
++ Response 200 (application/json)
+    + Attributes (userDesignImage,fixed-type)
+
++ Response 401 
+    UserAccountException("缺乏用户权限")
++ Response 403
+    UserAuthorizationException("用户没权获取相关数据")
+
+## 更新用户设计图 [PUT /user-design-images/{id}]
++ Parameters
+    + id:1(number,required) -设计ID
++ Request  (application/json)
+    + Attributes
+        + fileTitle: 原本档案名称.jpg (string)  - 文档名称
+        + userDesignImageStatusId:1 (number) - 1 正常,2 删除 
++ Response 200 (application/json)
+    + Attributes (userDesignImage,fixed-type)
+    
++ Response 401 
+    UserAccountException("缺乏用户权限")
++ Response 403
+    UserAuthorizationException("用户没权改动相关数据")
+ 
+# Data Structures
+ 
+## address 
+
+- id: 222 (number)
+- surname: teststore (string)
+- givenName (string)
+- addressLine1 (string)
+- addressLine2 (string)
+- country (string)
+- state (string)
+- city (string)
+- district: tests (string)
+- postcode (string)
+- mobile (string)
+- createTime: 12434345 (number)
+- userAddressStatusId: 1 (number)
+- userId: 123 (number)
+- district: test (string)
+ 
+## brand 
+
+- id: 123 (number)
+- brandName: 哇咔 (string)
+ 
+## catalog
+
+- designItemId: 12345 (number)
+- designId: 123 (number)
+- categoryId: 12 (number)
+- shopId: 124 (number)
+- shopName: test shop (string)
+- shopUrl: testshop (string)
+- designTitle: test test (string)
+- previewMediumImage: skjdgfdkgfkgj.jpg (string)
+- previewImageStorageId: 1 (number) 
+- catalogPrice: 1 (number) 
+- discountPrice: 1 (number) 
+- defaultRank: 1 (number) 
+- newRank: 1 (number) 
+- salesRank: 1 (number) 
+- recentSalesRank: 1 (number)
+ 
+## category 
+
+- id: 123 (number)
+- categoryName: T恤 (string)  
+ 
+## currency 
+
+- id: 1 (number)
+- currencyName: 人民币 (string)
+- currencySign: ￥ (string)
+ 
+## department
++ id: 123 (number)
++ departmentName: IT (string)
++ productionCapable: 1 (number)
+ 
+## design
+
+- id: 88 (number) 
+- title: 什么什么设计 (string) 
+- designStatusId: 1 (number) 
+- designStatus (designStatus,fixed-type) 
+- categoryFilterId: 88 (number) 
+- category (category,fixed-type) 
+- nonpublic: false (boolean) 
+- shopId: 1 (number) 
+- shop(shop,fixed-type) 
+- designImageId: 88 (number) 
+- designImage (designImage,fixed-type) 
+- publishTime: 1988-10-1 (string) 
+- designTypeId: 1 (number) 
+- designType (designType,fixed-type) 
+- designRank: 88 (number) 
+- createUser: 123 (number) 
+- createUserData (userData,fixed-type) 
+- createTime: 1988-10-1 (string) 
+- updateUser: 123456 (number) 
+- updateUserData (userData,fixed-type) 
+- updateTime: 1988-10-1 (string) 
+- soldQuantity30Days (number) 
+- designDetail (designDetail,fixed-type) 
+ 
+## designDetail
+
+- designId: 88 (number)
+- description: 正常 (string)
+ 
+## designImage
+
+- id: 222 (number)
+- imageStorageId: 123 (number)
+- designSourceImage (string)
+- width: 600 (string)
+- height: 600 (string)
+- fromIp: 192.168.1.1 (string)
+- fileSize:600 (string)
+- hash:fsfdsfdsfdsfsdfs (string)
+- designSmallImage: test (string)
+- designMediumImage: 12434345(string)
+- designLargeImage:12434345(string)
+- designXlargeImage: 12434345 (string)
+- sourceImageSync: 1 (boolean)
+- xlargeImageSync: 123 (boolean)
+- createTime: 1 (boolean)
+- dpi: 123 (boolean)
+ 
+## designItem
+
+- id: 12345 (number) 
+- designId: 123 (number) 
+- design (design,fixed-type) 
+- productId: 123 (number) 
+- product (product,fixed-type) 
+- productColorId: 12 (number) 
+- productColor (productColor,fixed-type) 
+- activated: true (boolean) 
+- price: 124.54 (number) 
+- currencyId:1 (number) 
+- currency (currency,fixed-type) 
+- printTypeId: 1 (number) 
+- printType (printType,fixed-type) 
+- item_rank: 123 (number) -设计品排序 
+- printCustomization (array[printCustomization],fixed-type) 
+ 
+## designStatus
+
+- id: 88 (number)
+- designStatusName: 正常 (string)
+ 
+## designStyle
+
+- id (number)
+- designId: 暂停 (number)
+- styleId (number)
+- approved: true (boolean)
+ 
+## designTag
+
+- id (number)
+- designId: 暂停 (number)
+- tagId (number)
+- approved: true (boolean)
+ 
+## designType
+
+- id: 88 (number)
+- designTypeName: 产品设计 (string)
+ 
+## favorite
+
+- id: 123 (number)
+- createTime: 2018-01-01T12:00:27.87 (string)
+- userId: 12 (number)
+- designItemId: 13 (number)
+ 
+## following
+
+- id: 123 (number)
+- createTime: 2018-01-01T12:00:27.87 (string)
+- userId: 12 (number)
+- followingStatusId: 1 (number)
+- followingStatus (followingStatus, fixed-type)
+- shopId: 13 (number)
+- shop (shop,fixed-type)
+ 
+## followingStatus
+
+- id : 1 (number)
+- followingStatusName : 正常 (string)
+ 
+## genders (object)
+
+- id : 1 (number) 
+- genderName : 男 (string)
+ 
+## imageRepeatType
+
+- id: 12345 (number)
+- imageRepeatTypeName: 无 (string)
+ 
+## imageStorage
+
+- id: 1 (number)
+- imageStorageName: 七牛 (string)
+- urlRoot: https://qn.diyeetech.com (string) 
+ 
+## paging 
+
+- total: 30 (number) - 表项目总数
+- offset: 30 (number) - 跳过项目数
+- limit: 30 (number) - 限制项目数
+ 
+## paymentType
+
+- id: 1 (number)
+- paymentTypeName: 支付宝 (string)
+ 
+
+## previewImage
+
+- id: 68 (number)
+- previewSmallImage: /v1823/sfef4556ggh.jpg (string)
+- imageStorageId: 1 (number)
+- imageStorageSync: true (boolean)
+ 
+## printCustomization
+
+- id: 12345 (number)
+- designItemId: 123 (number)
+- printTypeId: 1 (number) 
+- printType (printType,fixed-type) 
+- imagePositionX: 0.5 (string) 
+- imagePositionY: 0.5 (string) 
+- imageScaleX: 1 (string) 
+- imageScaleY: 1 (string) 
+- imageRepeatTypeId: 1 (number) 
+- imageRepeatType (imageRepeatType,fixed-type) 
+- designImageId: 1 (number) 
+- designImage (designImage,fixed-type) 
+- productId: 1 (number)
+- printSpec (printSpec,fixed-type) 
+ 
+## printSpec
+
+- id: 12345 (number)
+- productId: 123 (number)
+- printTypeId: 1 (number) 
+- printWidth: 100 (string) 
+- printHeight: 100 (string) 
+- printMinWidth: 100 (string) 
+- printMinHeight: 100 (string) 
+- canvasWidth: 100 (string) 
+- canvasHeight: 100 (string) 
+- canvasOffsetX: 1 (string) 
+- canvasOffsetY: 1 (string) 
+- additionalFee: 0.00(string) 
+- createUser: 123 (number)
+- createTime: 1998-10-1 (string)
+- updateUser: 123 (number)
+- updateTime: 1998-10-1 (string)
+ 
+## printType 
+
+- id: 1 (number)
+- printTypeName: 正面 (string)
+ 
+## product 
+
+- id: 123 (number)
+- productName: 标准T恤 (string)
+- description: 12 (string)
+- productPrice: 124.54 (string)
+- productStatusId: 1 (number)
+- productStatus (productStatus,fixed-type) 
+- productRank: 123 (number)
+- categoryId: 1 (number)
+- category (category,fixed-type) 
+- createUser: 123 (number)
+- createUserData (userData,fixed-type)
+- createTime: 1998-10-1 (string)
+- updateUser: 123 (number)
+- updateUserData (userData,fixed-type)
+- updateTime: 1998-10-1 (string)
+- brandId: 123 (number)
+- brand (brand,fixed-type) 
+- allowDesign: 12 (number)
+- defaultPrintTypeId: 124 (number)
+- defaultprintType (printType,fixed-type) 
+- defaultProductColorId: 16 (number)
+- defaultproductColor (productColor,fixed-type) 
+- width: 16.8 (string)
+ 
+## productColor
+
+- id: 12345 (number)
+- productColorName: 红 (string)
+- productColorRank: 10 (number) 
+- rgbCode: #ff0000 (string)
+ 
+## productSize
+
+- id : 1 (number)
+- productSizeName : 均码 (string)
+- productSizeRank : 10 (number)
+ 
+## productStatus
+
+- id (number)
+- productStatusName: 暂停 (string)
+ 
+## salesOrderDetail 
+
+- salesOrderId: 1111 (number)
+- trackCode: 1 (string)
+- userIp: 1 (string)
+- salesOrderRemarks: 1 (string)
+- customerRemarks: 1 (string)
+- createTime: 134365657 (number)
+- createUser: 12 (number)
+ 
+## salesOrderItem 
+
+- id: 7567567 (number)
+- salesOrderId: 1 (number)
+- salesOrderItemTypeId: 1 (number)
+- referenceId: 123 (number)
+- description: 什么什么设计 （标准T恤） (string)
+- originalUnitPrice: 12.23 (number)
+- unitPrice: 12.23 (number)
+- quantity: 1 (number)
+- designItemId: 123 (number)
+- designItem (designItem,fixed-type)
+ 
+## salesOrders 
+- id: 12345 (number)
+- customerId: 123 (number)
+- paymentTypeId: 1 (number)
+- paymentType (paymentType,fixed-type)
+- salesOrderStatusId: 1 (number)
+- salesOrderStatus (salesOrderStatus,fixed-type)
+- paymentTotal: 1 (string)
+- currencyId: 1 (string)
+- currency (currency,fixed-type)
+- exchangeRate: 1 (string)
+- shippingAddressId: 1 (string)
+- shippingAddress (shippingAddress,fixed-type)
+- billingAddressId: 1 (string)
+- updateUser: 1 (number)
+- updateTime: 1232485966 (number)
+- orderTime: 1 (string)
+- salesOrderItems (array[salesOrderItem],fixed-type)
+- salesOrderDetail (salesOrderDetail,fixed-type)
+ 
+## salesOrderStatus 
+
+- id: 1 (number)
+- salesOrderStatusName: 1 (string)
+ 
+## shippingAddress 
+
+- id: 222 (number)
+- surname: teststore (string)
+- givenName (string)
+- addressLine1 (string)
+- addressLine2 (string)
+- country (string)
+- state (string)
+- city (string)
+- district (string)
+- postcode (string)
+- mobile (string)
+- createTime: 12434345 (number)
+- userAddressStatusId: 1 (number)
+- userId: 123 (number)
+ 
+## shop 
+
+- id: 123 (number) -店铺id 
+- shopName: 19910117282 (string) -店铺名字
+- shopUrlPath: testname (string) -店铺链接
+- currencyId:1321546 (number) -currencyId 
+- currency (currency,fixed-type) 
+- shopStatusId: 211 (number) -店铺状态Id
+- shopStatus (shopStatus,fixed-type) 状态
+- shopImage: dsfsdd (string) -店铺背景图片链接
+- userId: 123 (number) -店铺创始人ID
+- userData (userData,fixed-type)
+- nonpublic: false (boolean) 
+- shopTypeId: 123 (number) -店铺样式Id 
+- shopType (shopType,fixed-type)
+- soldQuantity30Days: 138 (number) -店铺30天的销售量
+- designItemCount: 138 (number) -店铺设计品总数
+- shopDetail (shopDetail,fixed-type)
+- catalog (array[catalog],fixed-type)
+ 
+## shopcart
+
+- `id`: `1` (number)
+- `customerId` : `1` (number)
+- `updateTime` : `2018-01-01T12:00:27.87` (string)
+- `shopcartItems` (array[shopcartItem], fixed-type)
+ 
+## shopcartItem
+
+- id: 1 (number)
+- shopcartId : 1 (number)
+- description : 化纤布料印花定制 (string)
+- quantity: 1 (number)
+- selected : true (boolean)
+- skuId: 1 (number)
+- sku (sku, fixed-type)
+- designItemId : 1 (number)
+- designItem (designItem, fixed-type)
+- previewImage (previewImage, fixed-type)
+ 
+## shopDetail
+
+- shopId:123 (number) -店铺id 
+- description:efesesf (string) -店铺介绍
+- createTime:2018-10-10 (string) -创建时间
+- updateTime:2018-10-10 (string) -修改时间 
+- updateUserId: 211 (number) -修改人
+
+ 
+## shopStatus 
+
+- id: 1 (string)
+- shopStatusName: 1 (string) -店铺状态
+ 
+## shopType 
+
+- id: 123 (number) -店铺id 
+- shopTypeName: 19910117282 (string) -店铺名字
+ 
+## sku
+
+- id : 1 (number)
+- productId : 1 (number)
+- product (product, fixed-type)
+- productColorId : 1 (number)
+- productColor (productColor, fixed-type)
+- productSizeId : 1 (number)
+- productSize (productSize, fixed-type)
+ 
+## stylePage
+
+- id: 12 (number)
+- styleName: 简约 (string)
+- catalogs (array[catalog],fixed-type)
+ 
+## transaction
+
+- id: 123 (number)
+- transactionTypeId: 123 (number)
+- transactionType (transactionType, fixed-type)
+- transactionAmount: 123 (number)
+- currencyId: 123 (number)
+- currency: (currency, fixed-type)
+- userId: 123 (number)
+- user (userData, fixed-type)
+- referenceId: 123 (number)
+- createTime: 2018-01-01T12:00:27.87 (string)
+- paymentTypeId: 123 (number)
+- paymentType (paymentType, fixed-type)
+- paymentCode: 123456 (number)
+- earningBalancedAdjustment: 123 (number)
+- exchangeRate: 123 (number)
+ 
+## transactionType
+
+- id : 1 (number)
+- transactionTypeName : 订单 (string)
+ 
+## user 
+
+- id: 123 (number)
+- mobile: 19910117282 (string)
+- username: testname (string)
+- userStatusId: 123 (string)
+- userStatus (userStatus,fixed-type)
+- userImage: http://p7m9al9rr.bkt.clouddn.com/1.jpg (string) 
+- userRoleId: 3 (string) 
+- userRole (userRole,fixed-type) 
+- lastLoginTime: 1248237548 (number) 
+- defaultShopId: 138 (number) 
+- defaultShop (shop,fixed-type) 
+- defaultShippingAddressId: 222 (number) 
+- defaultShippingAddress (address,fixed-type) 
+- departmentId: 1 (number) 
+- department (department,fixed-type) 
+- userDetail (userDetail,fixed-type)
+- shopcartId: 2 (number) -用户最新的购物车Id
+
+ 
+## userData
+
+- id: 88 (number)
+- username: 小小小黑 (string)
+- userImage: http://p7m9al9rr.bkt.clouddn.com/1.jpg (string) 
+ 
+## userDesignImage 
+
+- id: 123 (number)
+- userId: 123 (number)
+- designImageId: 1235 (number)
+- designImage (designImage,fixed-type) 
+- fileTitle: test (string)
+- createTime:  1920-10-01(string)
+- updateTime: 1920-10-01 (string)
+- userDesignImageStatusId: 123 (number)
+ 
+
+## userDetail
+
+- userId: 123 (string)
+- surname: lmt (string)
+- givenName: asd (string)
+- genderId: 1 (string)
+- email: 123123@qq.com (string)
+- birthday: 1531191985000 (string)
+- createUser: 123 (string)
+- createTime: asd (string)
+- updateUser: asd (string)
+- updateTime: asd (string)
+- earningBalance: asd (string)
+- depositBalance: asd (string)
+ 
+## userRole 
+
+- id : 1 (number) 
+- userRoleName : 管理员 (string)
+ 
+## userStatus 
+
+- id : 1 (number) 
+- userStatusName : 正常 (string)
+ 
+## userWithAddress 
+
+- id: 123 (number)
+- mobile: 111 (number)
+- userStatusId: 1 (number)
+- userImage: 1 (number)
+- userRoleId: 1 (number)
+- lastLoginTime: 1248237548 (number)
+- defaultShopId: 138 (number)
+- defaultAddressId: 222 (number)
+- departmentId: 1 (number)
+- addresses (array[address],fixed-type)
