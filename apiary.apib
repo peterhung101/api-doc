@@ -28,13 +28,45 @@ HOST: http://www.diyeetech.com
     + Attributes
         + result (array[stylePage], fixed-type)
         + paging (paging, fixed-type) 
+
+## 产品目录相关设计品 [GET /catalogs/similar-design-item/{id}{?sort,offset,limit}]
++ Parameter
+    + id : 123 (number)
+    + sort : id/default/new/sales/recentSales + _asc/desc (string)
+    + offset : 5 (number,required)
+    + limit : 10 (number,required)
++ Response 200 (application/json)
+    + Attributes
+        + result (array[catalog],fixed-type)
+        + paging (paging,fixed-type)
+ 
+# Group  DepositController
+
+## 充值 [POST /deposit]
++ Request
+    + Attributes
+        + paymentTypeId : 1 (number)
+        + currencyId : 1 (number)
+        + depositAmount : 123.45 (number)
++ Response 200 (application/josn)
+    + Attributes
+        + html : html (string)
+
+## 获取充值详情 [GET /deposit/{id}]
++ Parameters
+    + id : 1 (number)
++ Response 200 (application/json)
+    + Attributes (deposit,fixed-type)
++ Response 400
+    ParameterException("没有充值记录")
  
 # Group DesignController
 
-## 管理员获取设计列表 [GET /admin/designs{?search,designStatusId,sort,offset,limit}] 
+## 管理员获取设计列表 [GET /admin/designs{?designId,title,designStatusId,sort,offset,limit}] 
 + Parameters 
-    + search :1 (number) -如果全是数字,则查找DesignId,否则查找title 
-    + designStatusId: shop (string)    
+    + designId :1 (number) -如果全是数字,则查找DesignId,否则查找title
+    + title : test (string) - design名称
+    + designStatusId: 1 (number)    
     + sort: id/title/shopName/designStatusName/soldQuantity/publishTime_asc/desc (string) 
     + offset : 0 (number) 
     + limit : 10 (number) 
@@ -45,7 +77,6 @@ HOST: http://www.diyeetech.com
             + (design) 
                 + designDetail :  (nullable) -不加载 
                 + category :  (nullable) -不加载 
-                + designType :  (nullable) -不加载 
         + paging (paging,fixed-type) 
 
 + Response 401
@@ -59,14 +90,17 @@ HOST: http://www.diyeetech.com
         + title:什么什么设计 (string) 设计品名字 
         + designRank : 123 (number) -店铺id 
         + designStatusId : 1 (number) 
-        + designStyles (array[designStyle],fixed-type) 
-        + designTags (array[designTag],fixed-type)
+        + designStyles (array[object],fixed-type) 
+            + styleId: 123 (number)
+            + approved: true (boolean)
+        + designTags (array[object],fixed-type)
+            + tag: 几何 (string)
+            + approved: true (boolean)
 
 + Response 200 (application/json)
     + Attributes (design,fixed-type) 
         + category:  (nullable) -不加载 
         + designImage:  (nullable) -不加载 
-        + designType:  (nullable) -不加载 
         + designDetail:  (nullable) -不加载 
 
 + Response 401
@@ -128,8 +162,12 @@ HOST: http://www.diyeetech.com
             + fileSize: 1351 (string) -图片大小 
             + imageStorageId: 1 (number) -图片所在的第三方图库 
             + dpi:300 (number) -图片的dpi 
-        + designStyles (array[designStyle],fixed-type) 
-        + designTags (array[designTag],fixed-type)
+        + designStyles (array[object],fixed-type) 
+            + styleId: 123 (number)
+            + approved: true (boolean)
+        + designTags (array[object],fixed-type)
+            + tag: 几何 (string)
+            + approved: true (boolean) 
         + designDetail (designDetail,fixed-type)
 
 + Response 200 (application/json)
@@ -178,13 +216,7 @@ HOST: http://www.diyeetech.com
         + price: 10 (number) -价格
         + currencyId: 123 (number) -价格货币id
         + printTypeId: 1 (number) -印刷正面或者反面 
-        + printCustomizations
-            + printTypeId: 4jhjh5k3h45hjy.jpg -图片路径
-            + imagePositionX: 6000 (string) -图片宽度
-            + imagePositionY: 8000 (string) -图片高度
-            + imageScaleX: 1351 (string) -图片大小
-            + imageScaleY: 1 (number) -图片所在的第三方图库
-            + dpi:300 (number) -图片的dpi
+        
 
 + Response 200 (application/json)
     + Attributes (designItem,fixed-type) 
@@ -243,7 +275,7 @@ HOST: http://www.diyeetech.com
     + styleId : 1 (number)
     + shopId : 123 (number)
     + tagId : 1 (number)
-    + sort : id/default/new/sales/recentSales + _asc/desc (string)
+    + sort : id/default/new/sales/recentSales + _ asc/desc (string)
     + offset : 5 (number,required)
     + limit : 10 (number,required)
 + Response 200 (application/json)
@@ -333,6 +365,19 @@ HOST: http://www.diyeetech.com
     + Attributes
         + result (array[genders],fixed-type)
  
+# Group  PreviewImageController
+
+# 获取设计品图片 [GET /preview-images?{designItemId}]
+
++ Parameters
+    + designItemId : 5151 (number) -必填 设计品Id
+   
++ Response 200 (application/json)
+    + Attributes
+        + result (array,fixed-type)
+            + (previewImage)
+                + previewType :  (nullable) -不加载 
+ 
 # Group PrintCustomizationsController
 
 ## 新增设计定制 [POST /print-customizations]
@@ -381,6 +426,171 @@ HOST: http://www.diyeetech.com
 
 + Response 401
     UserAccountException("缺乏店主权限") 
+ 
+# Group  ProductionOrderController
+
+# 获取工单列表 [GET /production-orders?{productionOrderId,salesOrderId,departmentId,productionOrderStatusId,sort,offset,limit}]
++ Parameters
+    + productionOrderId : 5151 (number) -工单Id
+    + salesOrderId : 1 (number) -订单Id
+    + departmentId : 1 (number) -部门Id
+    + productionOrderStatusId : 1 (number) -工单状态Id
+    + sort : id/batchId/username/salesOrderId/departmentName/productionOrderStatusName/createTime_asc/desc (string) -排序
+    + offset : 0 (number) -开始条数
+    + limit : 10 (number) -总条数
+
+   
++ Response 200 (application/json)
+    + Attributes
+        + result (array[productionOrder],fixed-type)
+        + paging (paging,fixed-type)
++ Response 401 
+    UserAccountException("缺乏运营权限") 
+
+
+# 获取工单详情 [GET /production-orders/{id}]
++ Parameters
+    + id : 5151 (number) -工单Id
+
++ Response 200 (application/json)
+    + Attributes (productionOrder,fixed-type)
+        + productionOrderItems : (array[productionOrderItem],fixed-type) 
+            + printCustomizations : (array[printCustomization],fixed-type) 
+                + printType (nullable)
+                + printSpec (nullable)
++ Response 401 
+    UserAccountException("缺乏运营权限") 
+
+
+# 更新工单详情 [PUT /production-orders/{id}]
++ Parameters
+    + id : 5151 (number) -工单Id
++ Request  (application/json)
+    + Attributes
+        + departmentId : 1 (number) - 部门Id
+        + productionOrderStatusId ： 1 (number) - 工单状态Id
+        + batchId： 1 (number) 
+        + userId: 1 (number) -用户Id
+
++ Response 200 (application/json)
+    + Attributes (productionOrder,fixed-type)
+        + productionOrderItems :  (nullable) -不加载 
+
++ Response 401 
+    UserAccountException("缺乏运营权限") 
+
+
+# 获取工单状况 [GET /production-orders/stat?{departmentId}]
++ Parameters
+    + departmentId : 1 (number) -部门Id
+
++ Response 200 (application/json)
+    + Attributes (productionOrder,fixed-type)
+        + unfinishedToday : 0(number) -今天未完成的工单
+        + unfinishedYesterday : 0(number) - 昨天未完成的工单
+        + unfinished3To5Days: 0(number)  - 3-5天未完成的工单
+        + unfinishedOver5Days: 0(number)  - 超过5天未完成的工单
+        + shippedToday: 10 (number) - 今天发货的工单
+        + shippedYesterday: 20(number)  - 昨天发货的工单
+        + shippedLast7Days: 60 (number)  - 前7天发货的工单
+
++ Response 401 
+    UserAccountException("缺乏运营权限") 
+
+
+# 获取工单状态列表 [GET /production-order-statuses]
+
++ Response 200 (application/json)
+    + Attributes 
+        + result (array[productionOrderStatus],fixed-type)
+        
++ Response 401 
+    UserAccountException("缺乏运营权限") 
+ 
+# Group ShipmentController
+
+## 获取工单发货列表 [GET /shipments?{productionOrderId,salesOrderId,embed,offset,limit}]
++ Parameters
+    + productionOrderId : 111 (number) -工单Id
+    + salesOrderId : 111 (number) 订单Id
+    + embed : productionOrderItem (string) -当embed是productionOrderItem返回添加productionOrderItem
+    + offset : 0 (number) 
+    + limit : 10 (number) 
+
++ Response 200 (application/json)
+    + Attributes
+        + result (array,fixed-type)
+            + (shipment)
+                + shipmentItems (shipmentItems)
+                    + productionOrderItem (productionOrderItem)
+                        + printSpecs :  (nullable) -不加载 
+                        + printCustomizations (printCustomization)
+                            +  printSpec:  (nullable) -不加载 
++ Response 401 
+    UserAccountException("缺乏运营权限") 
+
+
+## 新增发货记录 [POST /shipments]
++ Request  (application/json) 
+    + Attributes 
+        + productionOrderId : 111 (number) -工单Id
+        + shipmentStatusId :111 (number)
+        + shipmentServiceId : 11 (number) 
+        + trackingCode :test (string) 
+        + weight : 0 (number) 
+        + shipmentItems (array[object],fixed-type)
+            + quantity: 121 (number)
+            + weight: 1 (number)
+            + productionOrderItemId: 1 (number)
+
++ Response 200 (application/json)
+    + Attributes
+        + result (array,fixed-type)
+            + (shipment)
+                + shipmentItems (shipmentItems)
+                    + productionOrderItem (productionOrderItem)
+                        + printSpecs :  (nullable) -不加载 
+                        + printCustomizations (printCustomization)
+                            +  printSpec:  (nullable) -不加载 
++ Response 401 
+    UserAccountException("缺乏运营权限") 
+
+
+## 修改发货记录 [PUT /shipments/{id}]
++ Parameters
+    + id : 111 (number) -发货Id
++ Request  (application/json) 
+    + Attributes 
+        + shipmentServiceId : 111 (number) -工单Id
+        + shipmentStatusId :111 (number)
+        + shipmentServiceId : 11 (number) 
+        + trackingCode :test (string) 
+        + weight : 0 (number) 
+        + shipmentItems (array[object],fixed-type)
+            + id: 1 (number)
+            + quantity: 121 (number)
+            + weight: 1 (number)
+
++ Response 200 (application/json)
+    + Attributes
+        + result (array,fixed-type)
+            + (shipment)
+                + shipmentItems (shipmentItems)
+                    + productionOrderItem (productionOrderItem)
+                        + printSpecs :  (nullable) -不加载 
+                        + printCustomizations (printCustomization)
+                            +  printSpec:  (nullable) -不加载 
++ Response 401 
+    UserAccountException("缺乏运营权限") 
+ 
+# Group ShipmentServiceController
+
+## 获取物流列表 [GET /shipment-services]
++ Response 200 (application/json)
+    + Attributes
+        + result (array[shipmentService],fixed-type)
++ Response 401 
+    UserAccountException("缺乏运营权限") 
  
 # Group ShopcartController
 
@@ -541,6 +751,7 @@ HOST: http://www.diyeetech.com
 + Request  (application/json)
     + Attributes
         + currencyId : 1 (number) -currencyId
+        + shopImage ：dfdsfsdf (string) -店铺背景图片
         + description : 试试店 (string) -备注
 
 + Response 200 (application/json)
@@ -596,6 +807,126 @@ HOST: http://www.diyeetech.com
 + Response 401
     UserAccountException("缺乏用户权限")  
 
+ 
+# Group ShopGroupController
+
+## 新增群组 [POST /admin/shop-groups]
++ Request  (application/json)
+    + Attributes
+        + shopGroupName : 主页推荐设计师 (string) - 店铺群组名称
+        + shopGroupStatusId ： 1 (number) - 店铺群组状态id
++ Response 200 (application/json)
+    + Attributes (shopGroup,fixed-type)
+        + shopGroupDetail:  (nullable) -不加载 
++ Response 401 
+    UserAccountException("缺乏管理员权限") 
+
+
+## 群组列表 [GET /admin/shop-groups{?sort,offset,limit}]
++ Parameters
+    + sort : id/shopGroupName_desc/asc (string) - 排序条件
+    + offset ： 0 (number) - 起始
+    + limit : 10 (number) - 几条
++ Response 200 (application/json)
+    + Attributes
+        + result (array,fixed-type)
+            + (shopGroup)
+                + shopGroupDetail:  (nullable) -不加载 
+        + paging (paging,fixed-type)
++ Response 401 
+    UserAccountException("缺乏管理员权限") 
+
+
+## 获取群组 [GET /admin/shop-groups/{id}]
++ Parameters
+    + id : id (number) - shopGroupId 
++ Response 200 (application/json)
+    + Attributes (shopGroup,fixed-type)
++ Response 401 
+    UserAccountException("缺乏管理员权限") 
+
+## 更新群组 [PUT /admin/shop-groups/{id}]
++ Parameters
+    + id : id (number) - shopGroupId 
++ Request
+    + Attributes
+        + shopGroupName : 主页推荐设计师 (string) - 店铺群组名称
+        + shopGroupStatusId : 1 (number) - 店铺群组状态id
++ Response 200 (application/json)
+    + Attributes (shopGroup,fixed-type)
+        + shopGroupDetail:  (nullable) -不加载 
++ Response 401 
+    UserAccountException("缺乏管理员权限") 
+ 
+# Group StockChangeController
+
+## 新增库存 [POST /stock-changes]
++ Request  (application/json)
+    + Attributes
+        + skuId : 1 (number) - sku表的id
+        + changeQty : 88 (number) - 要添加的库存量
+        + stockChangeTypeId : 1 (number) - 信息是添加还是删除
+        + productionOrderItemId : 123 (number) -非强制参数
+        + description : 一二三四五 (string) - 库存信息说明
++ Response 200 (application/json)
+    + Attributes (stockChange,fixed-type)
+        + sku : (nullable) -不加载 
++ Response 401 
+    UserAccountException("缺乏运营权限") 
+
+
+## 获取全部库存信息 [GET /stock-changes{?id,sort,embed,productName,stockchangetypeid,skuId,offset,limit}]
++ Parameters 
+    + id : 1 (number) - stockChanges表的id
+    + sort : 88 (string) - id/craterTime_desc/asc
+    + embed : sku (string) - sku 返回sku的信息
+    + productName : 化纤布料 (string) - 布料名称
+    + stockchangetypeid : 1 (number) - stockchangetype表的id
+    + skuId ：1 (number) - skuid
+    + offset : 0 (number) - 从第几条开始查询
+    + limit : 10 (string) - 查询几条
++ Response 200 (application/json)
+    + Attributes 
+        + result (array,fixed-type)
+            + (stockChange)
+                + sku (sku)
+                    + productColor: (nullable) -不加载 
+                    + productSize: (nullable) -不加载 
+                    + createUserData: (nullable) -不加载 
+                    + updateUserData: (nullable) -不加载 
+                    + product (product)
+                        + productStatus: (nullable) -不加载  
+                        + category: (nullable) -不加载 
+                        + createUserData: (nullable) -不加载 
+                        + updateUserData: (nullable) -不加载 
+                        + brand: (nullable) -不加载 
+                        + defaultprintType: (nullable) -不加载 
+                        + defaultproductColor: (nullable) -不加载 
+        + paging (paging,fixed-type) 
++ Response 401 
+    UserAccountException("缺乏运营权限") 
+
+## 获取单条库存信息 [GET /stock-changes/{id}{?embed}]
++ Parameters 
+    + id : 1 (number) - stockChanges表的id 
+    + embed : sku (string) - sku 返回sku的信息
++ Response 200 (application/json)
+    + Attributes (stockChange,fixed-type)
+        + sku (sku)
+            + productColor: (nullable) -不加载 
+            + productSize: (nullable) -不加载 
+            + createUserData: (nullable) -不加载 
+            + updateUserData: (nullable) -不加载 
+            + product (product)
+                + productStatus: (nullable) -不加载  
+                + category: (nullable) -不加载 
+                + createUserData: (nullable) -不加载 
+                + updateUserData: (nullable) -不加载 
+                + brand: (nullable) -不加载 
+                + defaultprintType: (nullable) -不加载 
+                + defaultproductColor: (nullable) -不加载 
++ Response 401 
+    UserAccountException("缺乏运营权限") 
  
 # Group StylesController
 
@@ -787,8 +1118,8 @@ HOST: http://www.diyeetech.com
 ## 用户登陆 [POST /users/login]
 + Request  (application/json)
   + Attributes
-    + login (string,required) -用户名或者手机号 ,必填
-    + password (string,required) 密码 ,必填
+        + login (string,required) -用户名/电话/电邮 ,必填
+        + password (string,required) 密码 ,必填
 + Response 200 (application/json)
     + Attributes
         + token:fesrglkthtgrtgktlttthy (string,required) -用户名或者手机号 ,必填
@@ -908,10 +1239,10 @@ HOST: http://www.diyeetech.com
  
 # Group  UserDesignImageController
 
-## 获取用户设计图列表 [GET /user-design-images]
+## 获取用户设计图列表 [GET /user-design-images?{title}]
 + Request  (application/json)
     + Attributes
-        + title : test (string)  - 设计名称，可填可不填。
+        + title : test (string)  - 设计文档名称，可填可不填。
 + Response 200 (application/json)
     + Attributes
         + result (array[userDesignImage],fixed-type)
@@ -919,7 +1250,7 @@ HOST: http://www.diyeetech.com
 + Response 401 
     UserAccountException("缺乏用户权限") 
 
-## 获取用户设计图列表 [GET /user-design-images/{id}]
+## 获取用户设计图 [GET /user-design-images/{id}]
 + Parameters
     + id:1(number,required) -设计ID
 + Response 200 (application/json)
@@ -1003,6 +1334,16 @@ HOST: http://www.diyeetech.com
 + id: 123 (number)
 + departmentName: IT (string)
 + productionCapable: 1 (number)
+ 
+## deposit
+
+- id: 88 (number) 
+- depositAmount: 123 (number) 
+- completed: true (boolean) 
+- userId : 1 (number) 
+- createTime: `2018-01-01T12:00:27.87` (string)
+- currencyId : 1 (number) 
+- exchangeRate : 123 (number) 
  
 ## design
 
@@ -1149,9 +1490,24 @@ HOST: http://www.diyeetech.com
 ## previewImage
 
 - id: 68 (number)
+- designItemId: /v1823/sfef4556ggh.jpg (string)
+- productColorId: 1 (number)
 - previewSmallImage: /v1823/sfef4556ggh.jpg (string)
-- imageStorageId: 1 (number)
+- previewMediumImage: /v1823/sfef4556ggh.jpg (string)
+- previewLargeImage: /v1823/sfef4556ggh.jpg (string)
+- previewXlargeImage: /v1823/sfef4556ggh.jpg (string)
+- ImageStorageId: 1 (number)
+- createTime: 1980-10-10 (string)
 - imageStorageSync: true (boolean)
+- previewTypeId: 1 (number)
+- previewType (previewType,fixed-type) 
+ 
+## previewType
+
+- id: 1 (number)
+- previewTypeName: 正面 (string)
+- printTypeId: 1 (number)
+- printTypeDefault: true (boolean)
  
 ## printCustomization
 
@@ -1227,6 +1583,50 @@ HOST: http://www.diyeetech.com
 - productColorRank: 10 (number) 
 - rgbCode: #ff0000 (string)
  
+## productionOrder
+
+- id: 12345 (number)
+- salesOrderId: 123 (number)
+- departmentId: 1 (number) 
+- department (department,fixed-type) 
+- productionOrderTypeId:1 (number) 
+- productionOrderType (productionOrderStatus,fixed-type) 
+- productionOrderStatusId: 1(number) 
+- productionOrderStatus (productionOrderType,fixed-type) 
+- batchId: 5 (number) 
+- userId: 1 (number) 
+- user (userData,fixed-type) 
+- createUser: 1 (number) 
+- createUserData (userData,fixed-type) 
+- createTime: 1980-10-10 (string) 
+- updateUser:1 (number) 
+- updateUserData (userData,fixed-type) 
+- updateTime: 1980-10-10 (string) 
+- productionOrderItems (array[productionOrderItem],fixed-type) 
+ 
+## productionOrderItem
+
+- id: 12345 (number)
+- productionOrderId: 123 (number)
+- salesOrderItemId: 1 (number) 
+- quantity:10 (number) 
+- skuId:1 (number) 
+- sku (sku,fixed-type) 
+- designItemId:1 (number) 
+- printSpecs (array[printSpec],fixed-type) 
+- printCustomizations (array[printCustomization],fixed-type) 
+- previewImages (array[previewImage],fixed-type) 
+ 
+## productionOrderStatus
+
++ id: 1 (number)
++ productionOrderStatusName: 处理中 (string)
+ 
+## productionOrderType
+
++ id: 123 (number)
++ productionOrderTypeName: 一般订单 (string)
+ 
 ## productSize
 
 - id : 1 (number)
@@ -1285,6 +1685,50 @@ HOST: http://www.diyeetech.com
 
 - id: 1 (number)
 - salesOrderStatusName: 1 (string)
+ 
+## shipment 
+
+- id: 123 (number) 
+- productionOrderId: 111 (number) 
+- shipmentStatusId: 111 (number) 
+- shipmentStatus (shipmentStatus,fixed-type) 
+- shipmentServiceId:1321546 (number) -currencyId 
+- shipmentService (shipmentService,fixed-type) 
+- trackingCode:
+- weight: 211 (string) 
+- salesOrderId:111 (number) 
+- shippingAddressId: 1111 (number) 
+- shippingAddress (shippingAddress,fixed-type) 
+- userDetail (userData,fixed-type) 
+- createUserData (userData,fixed-type) 
+- createTime: 1988-10-1 (string) 
+- updateUserData (userData,fixed-type) 
+- updateTime: 1988-10-1 (string) 
+- shipmentItems (array[shipmentItem],fixed-type) 
+
+
+ 
+## shipmentItem 
+
+- id: 123 (number) -店铺id 
+- shipmentId: 7282 (string) -店铺名字
+- quantity: 1 (number) 
+- weight:12 (number) 
+- SalesOrderItemId:15 (number)  -销售
+- productionOrderItemId: 1 (string) -店铺链接
+- productionOrderItem (productionOrderItem,fixed-type) 
+
+
+ 
+## shipmentService
+
+- id: 1 (number)
+- shipmentServiceName: 顺丰 (string)
+ 
+## shipmentStatus
+
+- id: 1 (number)
+- shipmentStatusName: 顺丰 (string)
  
 ## shippingAddress 
 
@@ -1352,6 +1796,24 @@ HOST: http://www.diyeetech.com
 - updateUserId: 211 (number) -修改人
 
  
+## shopGroup
+
+- id : 1 (number)
+- shopGroupName : 主页推荐设计师 (string)
+- shopGroupStatusId: 1 (number)
+- createUser: 2905 (number)
+- createTime: 1980-10-10 (string)
+- updateUser: 2905 (number)
+- updateTime: 1980-10-10 (string)
+- shopGroupDetails (array[shopGroupDetail],fixed-type)
+ 
+## shopGroupDetail
+
+- id : 1 (number)
+- shop_id : 48 (number)
+- shop_group_id: 1 (number)
+- rank: 100 (number)
+ 
 ## shopStatus 
 
 - id: 1 (string)
@@ -1371,6 +1833,31 @@ HOST: http://www.diyeetech.com
 - productColor (productColor, fixed-type)
 - productSizeId : 1 (number)
 - productSize (productSize, fixed-type)
+- createUser: 1 (number) 
+- createUserData (userData,fixed-type) 
+- createTime: 1980-10-10 (string) 
+- updateUser:1 (number) 
+- updateUserData (userData,fixed-type) 
+- updateTime: 1980-10-10 (string) 
+ 
+## stockChange
+
+- id : 1 (number)
+- skuId : 1 (number)
+- sku (sku, fixed-type)
+- currentQty: 1020 (number)
+- changeQty: 1020 (number)
+- stockChangeTypeId: 1 (number)
+- stockChangeType (stockChangeType, fixed-type)
+- userId: 2905 (number) - 操作人
+- createTime: 1980-10-10 (string)
+- productionOrderItemId: 1235 (number)
+- description: 一二三四五 (string) - 库存信息说明
+ 
+## stockChangeType
+
+- id : 1 (number)
+- stockChangeTypeName : 新增库存 (string)
  
 ## stylePage
 
